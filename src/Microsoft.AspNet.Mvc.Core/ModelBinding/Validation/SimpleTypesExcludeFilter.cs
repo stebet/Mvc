@@ -17,25 +17,10 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
         /// </summary>
         public bool IsTypeExcluded(Type type)
         {
-            Type[] actualTypes;
-
-            if (type.GetTypeInfo().IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+            if (!IsSimpleType(underlyingType))
             {
-                actualTypes = type.GenericTypeArguments;
-            }
-            else
-            {
-                actualTypes = new Type[] { type };
-            }
-
-            foreach (var actualType in actualTypes)
-            {
-                var underlyingType = Nullable.GetUnderlyingType(actualType) ?? actualType;
-                if (!IsSimpleType(underlyingType))
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;

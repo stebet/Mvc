@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc.Core;
+using Microsoft.AspNet.Mvc.ModelBinding.Validation;
 using Microsoft.Framework.Internal;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding
@@ -60,6 +61,15 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                     if (result.IsModelSet ||
                         bindingContext.ModelState.ContainsKey(bindingContext.ModelName))
                     {
+                        if (bindingContext.IsTopLevelObject)
+                        {
+                            bindingContext.ValidationState.Add(result.Model, new ValidationState()
+                            {
+                                Key = bindingContext.ModelName,
+                                Metadata = bindingContext.ModelMetadata,
+                            });
+                        }
+
                         return result;
                     }
 
@@ -123,6 +133,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                 BindingSource = oldBindingContext.BindingSource,
                 BinderType = oldBindingContext.BinderType,
                 IsTopLevelObject = oldBindingContext.IsTopLevelObject,
+                ValidationState = oldBindingContext.ValidationState,
             };
 
             if (bindingSource != null && bindingSource.IsGreedy)
